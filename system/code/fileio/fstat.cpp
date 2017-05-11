@@ -5,7 +5,6 @@
 
 #include <sys/stat.h>
 #include <fcntl.h>
-
 #include <string>
 #include <iostream>
 #include <header.h>
@@ -79,5 +78,4 @@ void print_flags(int fd) {
 
     out += "]";
     std::cout << out << std::endl;
-
 }
