@@ -4,7 +4,7 @@
 include ../Makefile.inc
 
 all : mem_segment link_argv show_env modify_env longjmp jmp_vars jmp_vars_o \
-	jmp_return
+	jmp_return environ
 
 mem_segment : mem_segment.cpp
 	${CC} ${CCFLAGS} -o $@ $< ${TLPI_LIB}
@@ -31,8 +31,12 @@ jmp_vars_o : jmp_vars.cpp
 jmp_return : jmp_return.cpp
 	${CC} ${CCFLAGS} -O -o $@ $< ${TLPI_LIB}
 
+environ : environ.cpp
+	${CC} ${CCFLAGS} -o $@ $< ${TLPI_LIB}
+
 .PHONY : clean
 clean:
 	${RM} mem_segment link_argv show_env modify_env longjmp jmp_vars jmp_vars_o \
-	jmp_return
+	jmp_return environ
 	${RM} newbi
+
