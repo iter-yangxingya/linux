@@ -3,7 +3,8 @@
 
 DIRS = lib \
 	   fileio \
-	   proc
+	   proc \
+	   memalloc
 
 all :
 	@ for dir in ${DIRS}; do (cd $${dir}; ${MAKE}); done
