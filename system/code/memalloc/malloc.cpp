@@ -11,9 +11,10 @@ typedef struct _free_node {
 
 #define page_size 4096
 #define increment_size (32 * 4096)     // 128KB.
-#define pointer_field (2 * sizeof(void *))
+#define pointer_field  (2 * sizeof(void *))
 #define pointer_off(x) ((char *)(x) + sizeof(size_t))
 #define pointer_pfx(x) ((char *)(x) - sizeof(size_t))
+#define length_all(x) ((x)->length + sizeof(size_t) + pointer_field)
 
 static free_list g_flist = {0};
 static size_t g_increment = increment_size;
@@ -25,15 +26,15 @@ void* heap_malloc(size_t *size) {
     size_t s = *size;
     s = (s + g_increment - 1) / g_increment;
     s *= g_increment;
-    if (s = 0)
+    if (s == 0)
         return nullptr;
 
     void *old_ptr;
     if ((old_ptr = sbrk(s)) == nullptr)
         return nullptr;
 
-    g_heap_end = sbrk(0);
-    *size  = size_t(g_heap_end - old_ptr);
+    g_heap_end = (char *)sbrk(0);
+    *size  = size_t(g_heap_end - (char *)old_ptr);
 
     return old_ptr;
 }
@@ -51,7 +52,7 @@ size_t heap_free(void *ptr) {
             return 0;
 
         g_heap_end = end;
-        return len;
+        return g_increment;
     }
 
     return 0;
@@ -62,15 +63,15 @@ free_node *make_node(void *ptr) {
     return (free_node *)ptr;
 }
 
-void *malloc(size_t size) {
+void *i_malloc(size_t size) {
     if (size == 0)
         return nullptr;
 
     bool found = false;
     free_node *node = g_flist.next;
-    free_node *piror;
+    free_node *prior;
     while (node != nullptr) {
-        piror = node->piror;
+        prior = node->prior;
         if (node->length >= size) {
             found = true;
             break;
@@ -81,18 +82,18 @@ void *malloc(size_t size) {
     // first found.
     if (found) {
         if (node->length == size) {
-            node->piror->next = node->next;
-            node->next->piror = node->piror;
+            node->prior->next = node->next;
+            node->next->prior = node->prior;
             node->length = size + pointer_field;
             return pointer_off(node);
         } else {
             free_node *new_node = make_node((char *)node + size + sizeof(size_t));
             new_node->length = node->length - size - pointer_field;
             new_node->next = node->next;
-            new_node->piror = node->piror;
+            new_node->prior = node->prior;
 
-            node->piror->next = new_node;
-            node->next->piror = new_node;
+            node->prior->next = new_node;
+            node->next->prior = new_node;
 
             return pointer_off(node);
         }
@@ -103,15 +104,15 @@ void *malloc(size_t size) {
     if ((ptr = heap_malloc(&len)) == nullptr)
         return nullptr;
 
-    node = make_flist(ptr);
+    node = make_node(ptr);
     size_t left = len - size - sizeof(size_t);
     if (left > pointer_field + sizeof(size_t)) {
         free_node *new_node = make_node((char *)ptr + size + sizeof(size_t));
         new_node->length = left - pointer_field - sizeof(size_t);
         new_node->next = nullptr;
-        new_node->piror = piror;
+        new_node->prior = prior;
 
-        piror->next = new_node;
+        prior->next = new_node;
 
         node->length = size;
     } else {
@@ -121,21 +122,21 @@ void *malloc(size_t size) {
     return pointer_off(node);
 }
 
-void free(void *ptr) {
+void i_free(void *ptr) {
     if (ptr == nullptr)
         return;
 
     // forward merge.
     free_node *begin = (free_node *)pointer_pfx(ptr);
     size_t len = begin->length + sizeof(size_t);
-    free_node *end = make_node((char *)begin + begin->length);
+    free_node *end = make_node((char *)begin + len);
 
     free_node *node = g_flist.next;
-    free_node *piror;
+    free_node *prior;
 
     bool found = false;
     while (node != nullptr) {
-        piror = node->piror;
+        prior = node->prior;
         if (node == end) {
             found = true;
             break;
@@ -143,29 +144,29 @@ void free(void *ptr) {
         node = node->next;
     }
 
-    if (found) {
-        begin->next = node->next;
-        begin->piror = piror;
-        begin->length = node->length + len + sizeof(size_t);
+    begin->next = found ? node->next : nullptr;
+    begin->prior = prior;
+    begin->length -= pointer_field;
+    begin->length += (found ? length_all(node) : 0) ;
 
-        piror->next = begin;
-    } else {
-        begin->next = nullptr;
-        begin->piror = piror;
-        begin->length = node->length + len + sizeof(size_t);
+    prior->next = begin;
 
-        piror->next = begin;
-    }
+    node = begin;
 
-    free_node *tail = make_node((char *)piror + piror->length + sizeof(size_t));
+    free_node *tail = make_node((char *)prior + length_all(prior));
     if (tail == begin) {
-        piror->next = node->next;
-        if (node->next != nullptr)
-            node->next->piror = piror;
+        prior->next = begin->next;
+        if (begin->next != nullptr)
+            begin->next->prior = prior;
 
-        piror->length += len + node->length + sizeof(size_t) + pointer_field;
+        prior->length += length_all(begin);
+        node = prior;
     }
 
+    char *pbegin = (char *)node + sizeof(size_t) + pointer_field;
+    char *pend = (char *)node + length_all(node);
+    if (pend == g_heap_end)
+        node->length -= heap_free(pbegin);
 }
 
 
