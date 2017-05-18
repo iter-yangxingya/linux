@@ -2,8 +2,10 @@
 
 O_DIR=..
 INC_DIR=${O_DIR}/lib
+MALLOC_DIR=${O_DIR}/memalloc
 LIB_DIR=${O_DIR}
 TLPI_LIB=${O_DIR}/libtlpi.a
+MALLOC_LIB=${O_DIR}/libmalloc.a
 
 LINK_LIBRT=lrt
 LINK_LIBDL=ldl
@@ -17,7 +19,15 @@ CCFLAGS = -std=c++11 \
         -Wall \
         -W
 
+# for gdb debug info.
+OPT_DEBUG = -gstabs+
+# for gprof check.
+OPT_GPROF = -pg
+# for Pre process, only replace MACRO
+OPT_EPROC = -E
+
 THREAD_FLAGS = -pthread
+INC_MALLOC = -I${MALLOC_DIR}
 LDFLAGS = ${TLPI_LIB} -lm
 
 LKFLAGS = -L${O_DIR}
