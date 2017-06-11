@@ -4,7 +4,8 @@
 DIRS = lib \
 	   fileio \
 	   proc \
-	   memalloc
+	   memalloc \
+	   users
 
 all :
 	@ for dir in ${DIRS}; do (cd $${dir}; ${MAKE}); done

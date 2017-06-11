@@ -1,10 +1,10 @@
 //
-// \file ugid.h
+// \file ug_lookup.h
 // \brief user & group name & id converte.
 //
 
-#if !defined(ugid_h__)
-#define ugid_h__
+#if !defined(ug_lookup_h__)
+#define ug_lookup_h__
 
 #include <string>
 
@@ -16,4 +16,4 @@ uid_t uname_to_id(std::string const& name);
 std::string gid_to_name(gid_t id);
 gid_t gname_to_id(std::string const& name);
 
-#endif // ugid_h__
+#endif // ug_lookup_h__

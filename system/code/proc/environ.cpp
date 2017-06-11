@@ -13,17 +13,17 @@ int i_setenv(const char *name, const char *value, int overwrite);
 int i_unsetenv(const char *name);
 void print_env();
 
-int main(int argc, char *argv[]) {
+int main(/*int argc, char *argv[]*/) {
     clearenv();
     // raw api setenv()/unsetenv().
     std::cout << "raw api setenv()/unsetenv() call begin ===>" << std::endl;
 
-    char *name = "SHELL";
-    char *value = "/bin/sh";
-    char *value2 = "/bin/bash";
+    char name[] = "SHELL";
+    char value[] = "/bin/sh";
+    char value2[] = "/bin/bash";
 
-    char *hello = "SHELL=hello";
-    char *world = "SHELL=world";
+    char const *hello = "SHELL=hello";
+    char const *world = "SHELL=world";
     int hlen = strlen(hello);
     int wlen = strlen(world);
     char *v1;

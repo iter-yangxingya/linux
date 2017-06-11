@@ -1,11 +1,11 @@
 //
-// \file ugid.cpp
+// \file ug_lookup.cpp
 // \brief user and group id from name to id or from id to name convert.
 //
 
 #include <pwd.h>    // getpwnam()/getpwuid()
 #include <grp.h>    // getgrnam()/getgrgid()
-#include "ugid.h"
+#include "ug_lookup.h"
 
 std::string uid_to_name(uid_t id) {
     struct passwd *pwd;
@@ -37,7 +37,7 @@ uid_t uname_to_id(std::string const& name) {
 
 std::string gid_to_name(gid_t id) {
     struct group *grp;
-    if ((grp = getgruid(id)) == nullptr)
+    if ((grp = getgrgid(id)) == nullptr)
         return std::string("");
 
     return std::string(grp->gr_name);

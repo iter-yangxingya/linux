@@ -11,13 +11,14 @@ static jmp_buf env;
 static
 void jmp_return(int v) {
     std::cout << "Inside jmp_return() function will be return when call setjmp() after..." << std::endl;
+    std::cout << "jmp_return() argument is " << v << std::endl;
     if (setjmp(env) == 0) {
         std::cout << "call setjmp() for initialize..." << std::endl;
         return;
     }
 }
 
-int main(int argc, char *argv[]) {
+int main() {
 
     jmp_return(1);
     std::cout << "jmp_return() function had been return..." << std::endl;

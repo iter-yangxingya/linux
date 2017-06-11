@@ -6,7 +6,7 @@
 #include <iostream>
 #include <header.h>
 
-int main(int argc, char *argv[]) {
+int main(/*int argc, char *argv[]*/) {
     for (char **ep = environ; *ep != nullptr; ep++)
         std::cout << *ep << std::endl;
 

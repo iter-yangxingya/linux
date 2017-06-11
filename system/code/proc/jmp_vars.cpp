@@ -15,7 +15,7 @@ static void do_jump(int v1, int v2, int v3) {
     longjmp(env, 1);
 }
 
-int main(int argc, char *argv[]) {
+int main(/*int argc, char *argv[]*/) {
     int v1 = 111;
     register int v2 = 222;
     volatile int v3 = 333;

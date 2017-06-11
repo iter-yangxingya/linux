@@ -24,17 +24,19 @@ static void do_calc(int val) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(/*int argc, char *argv[]*/) {
     static int key = 9973;      // initialized data segment.
     static char mbuf[10240000]; // un-intialized data segment.
-    char *p;                    // stack frame.
+    char *p;          // stack frame.
 
     // the following is c synatx
-    // p = malloc(1024);           // heap segment.
+    // p = malloc(1024);        // heap segment.
     // the following is c++ synatx
     p = (char *)malloc(1024);   // heap segment.
 
     do_calc(key);
+
+    mbuf[0] = '\0';
 
     return 0;
 }
